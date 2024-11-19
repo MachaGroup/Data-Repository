@@ -51,28 +51,39 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     _firestoreService = FirestoreService(); // Initialize the instance
-    _queryUsersByProject(); // Call the query function when the widget is initialized
   }
 
-  Future<void> _queryUsersByProject() async {
-  String projectId = 'YeveWxgueVCcqDf1I4TO'; // Replace with the actual project ID
+  Future<void> findUserByEmail() async {
+  // Define the email address to search for
+  String email = 'machagroupwebapp@gmail.com';
 
-  // Query for users with the specified project ID
+  // Perform a Firestore query to find the user
   QuerySnapshot querySnapshot = await FirebaseFirestore.instance
-      .collection('users')
-      .where('projectId', isEqualTo: FirebaseFirestore.instance.doc('/projects/$projectId')) // Use a DocumentReference
-      .get();
+      .collection('users') // Access the 'users' collection
+      .where('Email', isEqualTo: email) // Filter by email address
+      .get(); // Execute the query and retrieve results
 
-  // Handle the results
-  for (QueryDocumentSnapshot doc in querySnapshot.docs) {
-    // Get the project reference from the user document
-    DocumentReference projectRef = doc.get('projectId') as DocumentReference;
-
-    // Fetch the project data using the reference
-    DocumentSnapshot projectSnapshot = await projectRef.get();
-
-    // Print the project data
-    print('Project Data: ${projectSnapshot.data()}');
+    // Check if any documents were found
+    if (querySnapshot.docs.isNotEmpty) {
+      // Retrieve the first matching document
+      QueryDocumentSnapshot userDoc = querySnapshot.docs.first;
+      // Print the document ID
+      print('Document ID: ${userDoc.id}');
+      // Print the user's username
+      print('Username: ${userDoc.get('Username')}');
+      // Print the user's building name
+      print('Building Name: ${userDoc.get('BuildingName')}');
+      // Print the user's street address
+      print('Street Address: ${userDoc.get('StreetAddress')}');
+      // Print the user's city
+      print('City: ${userDoc.get('City')}' );
+      // Print the user's state
+      print('State: ${userDoc.get('State')}');
+      // Print the user's zip code
+      print('Zip Code: ${userDoc.get('ZipCode')}');
+    } else {
+      // Print a message if no user was found
+      print('User not found.');
     }
   }
 
@@ -256,30 +267,27 @@ class _HomePageState extends State<HomePage> {
               },
               child: const Text('Create User with Project Reference'),
             ),
-            // Button to query users by project
-            ElevatedButton(
-              onPressed: _queryUsersByProject,
-              child: const Text('Query Users by Project'),
-            ),
-
-            // TextField for Project ID
-            TextField(
-              controller: documentRefController,
-              decoration: const InputDecoration(
-                labelText: 'Enter Referenced Document ID',
-              ),
-            ),
-
-            // Button to query users by project
-            ElevatedButton(
-              onPressed: _queryUsersByProject,
-              child: const Text('Query Users by Project'),
+            ElevatedButton(onPressed: findUserByEmail, 
+            child: const Text('Query Users by Email')
             ),
             ElevatedButton(
               onPressed: () {
                 _firestoreService.batchWriteExample();
               },
               child: const Text('Perform the Batch Write.'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                _firestoreService.batchUpdateExample(); // Call your batch update function
+              },
+              child: const Text('Perform Batch Update'),
+            ),
+            // Add a button to read data from the Buildings collection
+            ElevatedButton(
+              onPressed: () async {
+                await _firestoreService.readBuildings(); // Call the readBuildings function
+              },
+              child: const Text('Read Buildings'),
             ),
           ],
         ),
@@ -325,8 +333,7 @@ class _HomePageState extends State<HomePage> {
         String userEmail = userData['email'];
         String firstName = userData['firstName'];
         String lastName = userData['lastName'];
-        // ...
-        // Print the user data to the console
+
         print('User Email: $userEmail, First Name: $firstName, Last Name: $lastName'); 
       } else {
         print('User with ID $userId does not exist.');

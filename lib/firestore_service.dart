@@ -274,20 +274,29 @@ class FirestoreService {
       // Add operations to the batch
       // Example: Add two new projects
       batch.set(
-        _firestore.collection('tasks').doc(), // Generate a new document ID
+        _firestore.collection('users').doc(), // Generate a new document ID
         {
-          'taskName': 'Batch Write Test',
-          'dueDate': '2024-10-20',
-          'status': 'In Progress',
+          'email': 'Brandon@example.com',
+          'firstName': 'Brandon',
+          'lastName': 'Mihalko',
         },
       );
 
       batch.set(
-        _firestore.collection('tasks').doc(), // Generate a new document ID
+        _firestore.collection('users').doc(), // Generate a new document ID
         {
-          'taskName': 'Another Batch Write Test',
-          'dueDate': '2024-11-3',
-          'status': 'Not Started',
+          'email': 'favour@example.com',
+          'firstName': 'Favour',
+          'lastName': 'Agho',
+        },
+      );
+
+      batch.set(
+        _firestore.collection('users').doc(), // Generate a new document ID
+        {
+          'email': 'favour@example.com',
+          'firstName': 'Favour',
+          'lastName': 'Agho',
         },
       );
 
@@ -300,5 +309,96 @@ class FirestoreService {
       rethrow;
     }
   }
+
+  Future<void> batchUpdateExample() async {
+    try {
+      // Define the collection you want to update
+      final collectionRef = _firestore.collection('users');
+
+      // Create a WriteBatch
+      final batch = _firestore.batch();
+
+      final query1 = collectionRef.where('email', isEqualTo: 'favour@example.com');
+      final querySnapshot1 = await query1.get();
+
+      if (querySnapshot1.docs.isEmpty) {
+        print('No documents found with the email provided.');
+        return;
+      }
+
+      for (final doc in querySnapshot1.docs) {
+        batch.update(doc.reference, {
+          'firstName' : 'Favour Updated',
+          'lastName' : 'Agho Updated'
+        });
+      }
+
+
+      // Define the query to select the documents you want to update
+      final query2 = collectionRef.where('Email', isEqualTo: 'brandonmihalko@gmail.com');
+      final querySnapshot2 = await query2.get();
+
+      // Check if any documents were found
+      if (querySnapshot2.docs.isEmpty) {
+        print('No documents found with the email provided (please make sure the Email is correct).');
+        return; // Exit the function if no documents are found
+      }
+
+      // Update the documents
+      for (final doc in querySnapshot2.docs) {
+        batch.update(doc.reference, {
+          'BuildingName': 'Hampton Courts',
+          'City': 'Columbia',
+          'Country': 'United States',
+          'State': 'South Carolina',
+          'StreetAddress': '501 Pelham Dr. Apt A-106',
+          'ZipCode': '29209',
+          'Username': 'BMIHALKO'
+        });
+      }
+
+      // Commit the batch
+      await batch.commit();
+
+      print('Batch update completed successfully!');
+    } catch (e) {
+      print('Error during batch update: $e');
+      rethrow;
+    }
+  }
+
+  getBuildingsStream(String buildingDocId) {}
+
+
+Future<DocumentSnapshot<Map<String, dynamic>>> getBuidingsStream(String buildingsId) async {
+    try {
+      return await _firestore.collection('Buildings').doc(buildingsId).get();
+    } catch (e) {
+      print('Error getting building: $e');
+      rethrow;
+    }
+  }
+
+// Read Buildings Collection
+  Future<void> readBuildings() async {
+    try {
+      QuerySnapshot querySnapshot = await _firestore.collection('Buildings').get();
+
+      print('Buildings Data:'); // Print a header for clarity
+      for (QueryDocumentSnapshot doc in querySnapshot.docs) {
+        print('Document ID: ${doc.id}');
+        print('Company Name: ${doc.get('companyName') ?? 'N/A'}');
+        print('Building Name: ${doc.get('buildingName') ?? 'N/A'}');
+        print('Building Address: ${doc.get('buildingAddress') ?? 'N/A'}');
+        print('Building ID: ${doc.get('buildingId') ?? 'N/A'}');
+        print('--------------------'); // Separator between documents
+      }
+    } catch (e) {
+      print('Error reading Buildings collection: $e');
+      rethrow;
+    }
+  }
+
+
 
 }
