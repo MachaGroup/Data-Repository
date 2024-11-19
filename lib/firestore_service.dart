@@ -386,6 +386,7 @@ Future<DocumentSnapshot<Map<String, dynamic>>> getBuidingsStream(String building
 
       print('Buildings Data:'); // Print a header for clarity
       for (QueryDocumentSnapshot doc in querySnapshot.docs) {
+        print('--------------------'); // Seperator Between documents
         print('Document ID: ${doc.id}');
         print('Company Name: ${doc.get('companyName') ?? 'N/A'}');
         print('Building Name: ${doc.get('buildingName') ?? 'N/A'}');
@@ -399,6 +400,28 @@ Future<DocumentSnapshot<Map<String, dynamic>>> getBuidingsStream(String building
     }
   }
 
+Future<DocumentSnapshot<Map<String, dynamic>>?> getBuildingByBuildingId(String buildingId) async {
+  try {
+    QuerySnapshot querySnapshot = await _firestore
+        .collection('Buildings')
+        .where('buildingId', isEqualTo: buildingId)
+        .get();
+
+    if (querySnapshot.docs.isNotEmpty) {
+      // Get the reference of the first matching document
+      DocumentReference<Map<String, dynamic>> docRef = querySnapshot.docs.first.reference
+          as DocumentReference<Map<String, dynamic>>;
+
+      // Get the DocumentSnapshot using the reference
+      return await docRef.get();
+    } else {
+      return null; // Return null if no document is found
+    }
+  } catch (e) {
+    print('Error getting building: $e');
+    rethrow;
+  }
+}
 
 
 }

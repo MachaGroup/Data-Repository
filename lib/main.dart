@@ -45,6 +45,7 @@ class _HomePageState extends State<HomePage> {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController projectIdController = TextEditingController(); // Controller for project ID input
   final TextEditingController documentRefController = TextEditingController();
+  final TextEditingController buildingIdController = TextEditingController(); // Controller for building ID input
   late FirestoreService _firestoreService; // Declare the variable
 
   @override
@@ -97,12 +98,6 @@ class _HomePageState extends State<HomePage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            ElevatedButton(
-              onPressed: () {
-                addProject(); // Call function to create a task
-              },
-              child: const Text('Add Project'),
-            ),
             // TextField to enter User ID for read
             TextField(
               controller: userIdReadController, // Set controller for User ID input
@@ -145,31 +140,33 @@ class _HomePageState extends State<HomePage> {
               child: const Text('Delete Task'),
             ),
             // Add a button to create a Task in the Projects Collection
-            ElevatedButton(
-              onPressed: () {
-                // Get the project ID from a TextField or other input
-                String projectsId = 'YeveWxgueVCcqDf1I4TO'; // Replace with actual project ID
-                _firestoreService.createTasks(projectsId, {
-                  'taskName': 'Create Wireframes',
-                  'status': 'Incomplete',
-                  'dueDate': DateTime(2024,09,15,),
-                });
-              },
-              child: const Text('Create Task Within Projects Collection'),
-            ),
+            // Removed because there is no Projects Collection
+            // ElevatedButton(
+            //   onPressed: () {
+            //     // Get the project ID from a TextField or other input
+            //     String projectsId = 'YeveWxgueVCcqDf1I4TO'; // Replace with actual project ID
+            //     _firestoreService.createTasks(projectsId, {
+            //       'taskName': 'Create Wireframes',
+            //       'status': 'Incomplete',
+            //       'dueDate': DateTime(2024,09,15,),
+            //     });
+            //   },
+            //   child: const Text('Create Task Within Projects Collection'),
+            // ),
             // Add a button to create Users in the Projects Collection
-            ElevatedButton(
-              onPressed: () {
-                // Get the project ID from a textField or other input
-                String projectsId = 'YeveWxgueVCcqDf1I4TO'; //Replace with actual project ID
-                _firestoreService.createUsers (projectsId, {
-                  'firstName': 'John',
-                  'lastName': 'Doe',
-                  'email': 'johndoe@example.com',
-                });
-              },
-              child: const Text('Create User Within Projects Collection'),
-            ),
+            // Removed because there is no Projects Collection
+            // ElevatedButton(
+            //   onPressed: () {
+            //     // Get the project ID from a textField or other input
+            //     String projectsId = 'YeveWxgueVCcqDf1I4TO'; //Replace with actual project ID
+            //     _firestoreService.createUsers (projectsId, {
+            //       'firstName': 'John',
+            //       'lastName': 'Doe',
+            //       'email': 'johndoe@example.com',
+            //     });
+            //   },
+            //   child: const Text('Create User Within Projects Collection'),
+            // ),
             // Add a button to create Comments in the Tasks Collection
             ElevatedButton(
               onPressed: () {
@@ -193,15 +190,6 @@ class _HomePageState extends State<HomePage> {
                 });
               },
               child: const Text('Create Subtasks Within Tasks Collection'),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                String projectsId = 'Brandon Mihalko'; //replace with actual User ID
-                _firestoreService.createProjects(projectsId, {
-                  'Project': 'Data Repository'
-                });
-              },
-              child: const Text('Create Projects Within Users Collection'),
             ),
             ElevatedButton(
               onPressed: () {
@@ -245,28 +233,6 @@ class _HomePageState extends State<HomePage> {
               ),
             ),
 
-            // Button to create a user with a project reference
-            ElevatedButton(
-              onPressed: () {
-                // Get user data from input fields
-                String userId = 'user123'; // Replace with actual user ID
-                String projectId = projectIdController.text; // Get project ID from input
-                String firstName = firstNameController.text;
-                String lastName = lastNameController.text;
-                String email = emailController.text;
-
-                // Call the createUserWithProjectReference function
-                _firestoreService.createUserWithProjectReference(userId, projectId, {
-                  'firstName': firstName,
-                  'lastName': lastName,
-                  'email': email,
-                }, firstNameController: firstNameController,
-                    lastNameController: lastNameController,
-                    emailController: emailController,
-                );
-              },
-              child: const Text('Create User with Project Reference'),
-            ),
             ElevatedButton(onPressed: findUserByEmail, 
             child: const Text('Query Users by Email')
             ),
@@ -288,6 +254,33 @@ class _HomePageState extends State<HomePage> {
                 await _firestoreService.readBuildings(); // Call the readBuildings function
               },
               child: const Text('Read Buildings'),
+            ),
+            // TextField for Building ID
+            TextField(
+              controller: buildingIdController,
+              decoration: const InputDecoration(
+                labelText: 'Enter Building ID',
+              ),
+            ),
+            // Button to read a single building by Building ID
+            ElevatedButton(
+              onPressed: () {
+                String buildingId = buildingIdController.text;
+                _firestoreService.getBuildingByBuildingId(buildingId).then((snapshot) {
+                  if (snapshot != null) {
+                    Map<String, dynamic> building = snapshot.data()!;
+                    print('--------------------');
+                    print('Building Name: ${building['buildingName']}');
+                    print('Building Address: ${building['buildingAddress']}');
+                    print('Building Company: ${building['companyName']}');
+                    print('--------------------');
+                    // ... (Print other building details)
+                  } else {
+                    print('Building not found.');
+                  }
+                });
+              },
+              child: const Text('Read Building by Building ID'),
             ),
           ],
         ),
