@@ -4,80 +4,6 @@ import 'package:flutter/material.dart';
 class FirestoreService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  // Projects Collection
-  Future<void> createProject(Map<String, dynamic> projectData) async {
-    try {
-      await _firestore.collection('projects').add(projectData);
-    } catch (e) {
-      print('Error creating project: $e');
-      rethrow; // Rethrow to handle the error in the calling function
-    }
-  }
-
-  Future<DocumentSnapshot<Map<String, dynamic>>> getProject(String projectId) async {
-    try {
-      return await _firestore.collection('projects').doc(projectId).get();
-    } catch (e) {
-      print('Error getting project: $e');
-      rethrow;
-    }
-  }
-
-  Future<void> updateProject(String projectId, Map<String, dynamic> updatedData) async {
-    try {
-      await _firestore.collection('projects').doc(projectId).update(updatedData);
-    } catch (e) {
-      print('Error updating project: $e');
-      rethrow;
-    }
-  }
-
-  Future<void> deleteProject(String projectId) async {
-    try {
-      await _firestore.collection('projects').doc(projectId).delete();
-    } catch (e) {
-      print('Error deleting project: $e');
-      rethrow;
-    }
-  }
-
-  // Tasks Collection
-  Future<void> createTask(Map<String, dynamic> taskData) async {
-    try {
-      await _firestore.collection('tasks').add(taskData);
-    } catch (e) {
-      print('Error creating task: $e');
-      rethrow;
-    }
-  }
-
-  Future<DocumentSnapshot<Map<String, dynamic>>> getTask(String taskId) async {
-    try {
-      return await _firestore.collection('tasks').doc(taskId).get();
-    } catch (e) {
-      print('Error getting task: $e');
-      rethrow;
-    }
-  }
-
-  Future<void> updateTask(String taskId, Map<String, dynamic> updatedData) async {
-    try {
-      await _firestore.collection('tasks').doc(taskId).update(updatedData);
-    } catch (e) {
-      print('Error updating task: $e');
-      rethrow;
-    }
-  }
-
-  Future<void> deleteTask(String taskId) async {
-    try {
-      await _firestore.collection('tasks').doc(taskId).delete();
-    } catch (e) {
-      print('Error deleting task: $e');
-      rethrow;
-    }
-  }
-
   // Users Collection
   Future<void> createUser(Map<String, dynamic> userData) async {
     try {
@@ -405,6 +331,65 @@ Future<DocumentSnapshot<Map<String, dynamic>>?> getBuildingByBuildingId(String b
     QuerySnapshot querySnapshot = await _firestore
         .collection('Buildings')
         .where('buildingId', isEqualTo: buildingId)
+        .get();
+
+    if (querySnapshot.docs.isNotEmpty) {
+      // Get the reference of the first matching document
+      DocumentReference<Map<String, dynamic>> docRef = querySnapshot.docs.first.reference
+          as DocumentReference<Map<String, dynamic>>;
+
+      // Get the DocumentSnapshot using the reference
+      return await docRef.get();
+    } else {
+      return null; // Return null if no document is found
+    }
+  } catch (e) {
+    print('Error getting building: $e');
+    rethrow;
+  }
+}
+
+  Future<void> findUserByEmail() async {
+  // Define the email address to search for
+  String email = 'machagroupwebapp@gmail.com';
+
+  // Perform a Firestore query to find the user
+  QuerySnapshot querySnapshot = await FirebaseFirestore.instance
+      .collection('users') // Access the 'users' collection
+      .where('Email', isEqualTo: email) // Filter by email address
+      .get(); // Execute the query and retrieve results
+
+    // Check if any documents were found
+    if (querySnapshot.docs.isNotEmpty) {
+      // Retrieve the first matching document
+      QueryDocumentSnapshot userDoc = querySnapshot.docs.first;
+      print('--------------------------------------');
+      // Print the document ID
+      print('Document ID: ${userDoc.id}');
+      // Print the user's username
+      print('Username: ${userDoc.get('Username')}');
+      // Print the user's building name
+      print('Building Name: ${userDoc.get('BuildingName')}');
+      // Print the user's street address
+      print('Street Address: ${userDoc.get('StreetAddress')}');
+      // Print the user's city
+      print('City: ${userDoc.get('City')}' );
+      // Print the user's state
+      print('State: ${userDoc.get('State')}');
+      // Print the user's zip code
+      print('Zip Code: ${userDoc.get('ZipCode')}');
+      print('--------------------------------------');
+    } else {
+      // Print a message if no user was found
+      print('User not found.');
+    }
+  }
+
+Future<DocumentSnapshot<Map<String, dynamic>>?> getContactUsbyEmail(String emailId) async {
+  try {
+    QuerySnapshot querySnapshot = await _firestore
+        .collection('contact-us')
+        .where('Email', isEqualTo: emailId)
         .get();
 
     if (querySnapshot.docs.isNotEmpty) {

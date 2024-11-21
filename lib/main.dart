@@ -54,40 +54,6 @@ class _HomePageState extends State<HomePage> {
     _firestoreService = FirestoreService(); // Initialize the instance
   }
 
-  Future<void> findUserByEmail() async {
-  // Define the email address to search for
-  String email = 'machagroupwebapp@gmail.com';
-
-  // Perform a Firestore query to find the user
-  QuerySnapshot querySnapshot = await FirebaseFirestore.instance
-      .collection('users') // Access the 'users' collection
-      .where('Email', isEqualTo: email) // Filter by email address
-      .get(); // Execute the query and retrieve results
-
-    // Check if any documents were found
-    if (querySnapshot.docs.isNotEmpty) {
-      // Retrieve the first matching document
-      QueryDocumentSnapshot userDoc = querySnapshot.docs.first;
-      // Print the document ID
-      print('Document ID: ${userDoc.id}');
-      // Print the user's username
-      print('Username: ${userDoc.get('Username')}');
-      // Print the user's building name
-      print('Building Name: ${userDoc.get('BuildingName')}');
-      // Print the user's street address
-      print('Street Address: ${userDoc.get('StreetAddress')}');
-      // Print the user's city
-      print('City: ${userDoc.get('City')}' );
-      // Print the user's state
-      print('State: ${userDoc.get('State')}');
-      // Print the user's zip code
-      print('Zip Code: ${userDoc.get('ZipCode')}');
-    } else {
-      // Print a message if no user was found
-      print('User not found.');
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -126,115 +92,11 @@ class _HomePageState extends State<HomePage> {
               },
               child: const Text('Update User'),
             ),
-            TextField(
-              controller: taskIdController, // Set controller for the input field
-              decoration: const InputDecoration(
-                labelText: 'Enter Task ID', // Label for the input field
-              ),
-            ),
             ElevatedButton(
               onPressed: () {
-                String taskId = taskIdController.text; // Get the Task ID from the input field
-                deleteTask(taskId); // Call function to delete a task with the specified ID
+                _firestoreService.findUserByEmail(); // Call the function from FirestoreService
               },
-              child: const Text('Delete Task'),
-            ),
-            // Add a button to create a Task in the Projects Collection
-            // Removed because there is no Projects Collection
-            // ElevatedButton(
-            //   onPressed: () {
-            //     // Get the project ID from a TextField or other input
-            //     String projectsId = 'YeveWxgueVCcqDf1I4TO'; // Replace with actual project ID
-            //     _firestoreService.createTasks(projectsId, {
-            //       'taskName': 'Create Wireframes',
-            //       'status': 'Incomplete',
-            //       'dueDate': DateTime(2024,09,15,),
-            //     });
-            //   },
-            //   child: const Text('Create Task Within Projects Collection'),
-            // ),
-            // Add a button to create Users in the Projects Collection
-            // Removed because there is no Projects Collection
-            // ElevatedButton(
-            //   onPressed: () {
-            //     // Get the project ID from a textField or other input
-            //     String projectsId = 'YeveWxgueVCcqDf1I4TO'; //Replace with actual project ID
-            //     _firestoreService.createUsers (projectsId, {
-            //       'firstName': 'John',
-            //       'lastName': 'Doe',
-            //       'email': 'johndoe@example.com',
-            //     });
-            //   },
-            //   child: const Text('Create User Within Projects Collection'),
-            // ),
-            // Add a button to create Comments in the Tasks Collection
-            ElevatedButton(
-              onPressed: () {
-                // Get the project ID from a textField or other input
-                String taskId = 'Comments'; //Replace with actual task ID
-                _firestoreService.createComments (taskId, {
-                  'comment':'The project is on time and everything is working.',
-                  'user': 'Brandon Mihalko',
-                });
-              },
-              child: const Text('Create Comments Within Tasks Collection'),
-            ),
-            // Add a button to create Subtasks in the Tasks Collection
-            ElevatedButton(
-              onPressed: () {
-                // Get the project ID from a textField or other input
-                String taskId = 'Subtasks'; //Replace with actual task ID
-                _firestoreService.createSubtasks (taskId, {
-                  'subtask 1': 'Create Subcollections',
-                  'subtask 2': 'Create Code for Subcollections',
-                });
-              },
-              child: const Text('Create Subtasks Within Tasks Collection'),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                String usertasksId = 'Brandon Mihalko'; // replace with actual User ID
-                _firestoreService.createUserTasks(usertasksId, {
-                  'Sprint 1': 'ERD'
-                });
-              },
-              child: const Text('Create Tasks Within Users Collection'),
-            ),
-
-            // TextField for Project ID
-            TextField(
-              controller: projectIdController,
-              decoration: const InputDecoration(
-                labelText: 'Enter Project ID',
-              ),
-            ),
-
-            // TextField for First Name
-            TextField(
-              controller: firstNameController,
-              decoration: const InputDecoration(
-                labelText: 'Enter First Name',
-              ),
-            ),
-
-            // TextField for Last Name
-            TextField(
-              controller: lastNameController,
-              decoration: const InputDecoration(
-                labelText: 'Enter Last Name',
-              ),
-            ),
-
-            // TextField for Email
-            TextField(
-              controller: emailController,
-              decoration: const InputDecoration(
-                labelText: 'Enter Email',
-              ),
-            ),
-
-            ElevatedButton(onPressed: findUserByEmail, 
-            child: const Text('Query Users by Email')
+              child: const Text('Find Users by Email'),
             ),
             ElevatedButton(
               onPressed: () {
@@ -270,6 +132,7 @@ class _HomePageState extends State<HomePage> {
                   if (snapshot != null) {
                     Map<String, dynamic> building = snapshot.data()!;
                     print('--------------------');
+                    print('Document ID: ${snapshot.id}');
                     print('Building Name: ${building['buildingName']}');
                     print('Building Address: ${building['buildingAddress']}');
                     print('Building Company: ${building['companyName']}');
@@ -282,6 +145,33 @@ class _HomePageState extends State<HomePage> {
               },
               child: const Text('Read Building by Building ID'),
             ),
+            // TextField for Contact-Us Email
+            TextField(
+              controller: emailController,
+              decoration: const InputDecoration(
+                labelText: 'Enter Email',
+              ),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                String emailId = emailController.text;
+                _firestoreService.getContactUsbyEmail(emailId).then((snapshot) {
+                  if (snapshot != null) {
+                    Map<String, dynamic> contactUs = snapshot.data()!;
+                    print('--------------------');
+                    print('Document ID: ${snapshot.id}');
+                    print('Company: ${contactUs['Company']}');
+                    print('Email: ${contactUs['Email']}');
+                    print('First Name: ${contactUs['firstName']}');
+                    print('Last Name: ${contactUs['lastName']}');
+                    print('Subject: ${contactUs['Subject']}');
+                    print('Message: ${contactUs['Message']}');
+                    print('--------------------');
+                  }
+                });
+              },
+              child: const Text('Read Contact-Us by Email'),
+            )
           ],
         ),
       ),
@@ -290,29 +180,6 @@ class _HomePageState extends State<HomePage> {
 
 
 // CRUD Operations using FirestoreService
-  Future<void> addProject() async {
-  try {
-    // Define the user data as a list of maps
-    final projects = [
-      {
-        'projectName': 'Data Repository',
-        'startDate': '2024-9-5',
-        'endDate': '2024-11-29',
-      }
-    ];
-
-    // Iterate through the user data and add each user to the 'users' collection
-    for (final project in projects) {
-      await _firestoreService.createProject(project);
-    }
-
-    // Display success message or update UI
-    print('Projects added successfully!');
-  } catch (e) {
-    // Handle error
-    print('Error adding users: $e');
-  }
-}
 
 // 2. Read: Retrieve documents from the 'users' collection
   Future<void> getUsers(String userId) async {
@@ -349,18 +216,6 @@ class _HomePageState extends State<HomePage> {
     } catch (e) {
       // Handle error
       print('Error updating user: $e');
-    }
-  }
-
-// 4. Delete: Delete a document from the 'tasks' collection
-  Future<void> deleteTask(String taskId) async {
-    try {
-      await _firestoreService.deleteTask(taskId);
-      // Display success message or update UI
-      print('Document successfully deleted: $taskId');
-    } catch (e) {
-      // Handle error
-      print('Error deleting task: $e');
     }
   }
 }
