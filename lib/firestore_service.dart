@@ -408,5 +408,64 @@ Future<DocumentSnapshot<Map<String, dynamic>>?> getContactUsbyEmail(String email
   }
 }
 
+Future<List<Map<String, dynamic>>> getAllFormsInAccessControlKeypads() async {
+  try {
+    // Query for all documents in the subcollection
+    QuerySnapshot querySnapshot = await _firestore
+        .collection('forms')
+        .doc('Physical Security') // Target the Physical Security subcollection
+        .collection('Access Control Systems') // Target the Access Control Keypads subcollection
+        .get();
+
+    // Process the query results
+    List<Map<String, dynamic>> results = [];
+    for (QueryDocumentSnapshot doc in querySnapshot.docs) {
+      // Get the document ID
+      String formId = doc.id; 
+
+      // Add the document ID to the data
+      results.add({
+        'id': formId, // Add the document ID to the data
+        ...doc.data() as Map<String, dynamic>
+      });
+    }
+    return results;
+  } catch (e) {
+    print('Error getting forms: $e');
+    rethrow;
+  }
+}
+
+Future<List<Map<String, dynamic>>> getFormsByBuildingId(String buildingId) async {
+  try {
+    // Query for all documents with the given building ID
+    QuerySnapshot querySnapshot = await _firestore
+        .collection('forms')
+        .doc('Physical Security') // Target the Physical Security subcollection
+        .collection('Stationed Guards') // Target the Access Control Systems subcollection
+        .where('building', isEqualTo: FirebaseFirestore.instance.doc('Buildings/$buildingId')) // Filter by building reference ID
+        .get();
+
+    // Process the query results
+    List<Map<String, dynamic>> results = [];
+    for (QueryDocumentSnapshot doc in querySnapshot.docs) {
+      // Get the document ID
+      String formId = doc.id;
+
+      // Add the document ID to the data
+      results.add({
+        'id': formId,
+        ...doc.data() as Map<String, dynamic>
+      });
+    }
+    return results;
+  } catch (e) {
+    print('Error getting forms: $e');
+    rethrow;
+  }
+}
+
+
+
 
 }

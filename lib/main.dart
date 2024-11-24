@@ -46,6 +46,7 @@ class _HomePageState extends State<HomePage> {
   final TextEditingController projectIdController = TextEditingController(); // Controller for project ID input
   final TextEditingController documentRefController = TextEditingController();
   final TextEditingController buildingIdController = TextEditingController(); // Controller for building ID input
+  final TextEditingController _buildingIdController = TextEditingController();
   late FirestoreService _firestoreService; // Declare the variable
 
   @override
@@ -171,7 +172,118 @@ class _HomePageState extends State<HomePage> {
                 });
               },
               child: const Text('Read Contact-Us by Email'),
-            )
+            ),
+            // Button to read all forms in Access Control Keypads
+            ElevatedButton(
+              onPressed: () {
+                _firestoreService.getAllFormsInAccessControlKeypads().then((formsData) {
+                  
+                  print('-----------------------------');
+
+                  for (Map<String, dynamic> form in formsData) {
+
+                    // Print Form ID
+                    print('Form ID: ${form['id']}'); 
+
+                    // Extract and print the Building Reference first
+                    if (form.containsKey('building') && form['building'] is DocumentReference) {
+                      // Cleaned-up output for Building Reference, only the path
+                      DocumentReference buildingRef = form['building'];
+                      print('Building: ${buildingRef.path}');
+                    }
+
+                    // Print Form Data
+                    print('Form Data:');
+                    form.forEach((key, value) {
+                      if (key == 'id' || key == 'building') return; // Skip 'id' and 'building'
+
+                      if (value is Map) {
+                        // Handle nested Maps (like formData)
+                        print('  $key:');
+                        value.forEach((nestedKey, nestedValue) {
+                          print('    $nestedKey: $nestedValue');
+                        });
+                      } else {
+                        // Print other top-level key-value pairs
+                        print('  $key: $value');
+                      }
+                    });
+
+                    print('-----------------------------'); // Seperator between forms
+                  }
+                }).catchError((error) {
+                  print('Error getting forms: $error');
+                });
+              },
+              child: const Text('Read All Forms in Specific Subcollection in Physical Security'),
+            ),
+            // Text field to input building document ID
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: TextField(
+                controller: _buildingIdController,
+                decoration: const InputDecoration(
+                  labelText: 'Enter Building Document ID',
+                  border: OutlineInputBorder(),
+                ),
+              ),
+            ),
+            // Button to query forms
+            ElevatedButton(
+              onPressed: () {
+                String buildingId = _buildingIdController.text.trim();
+
+                if (buildingId.isEmpty) {
+                  print('Please enter a valid Building ID');
+                  return;
+                }
+
+                _firestoreService.getFormsByBuildingId(buildingId).then((formsData) {
+                  if (formsData.isEmpty) {
+                    print('----------------------------------------------------------');
+                    print(
+                        'No forms found with the Building ID "$buildingId" in this subcollection.');
+                    print('----------------------------------------------------------');
+                    return;
+                  }
+
+                  print('-----------------------------');
+                  for (Map<String, dynamic> form in formsData) {
+                    // Print Form ID
+                    print('Form ID: ${form['id']}');
+
+                    // Extract and print the Building ID
+                    if (form.containsKey('building') &&
+                        form['building'] is DocumentReference) {
+                      DocumentReference buildingRef = form['building'];
+                      print('Building ID: ${buildingRef.id}');
+                    }
+
+                    // Print Form Data
+                    print('Form Data:');
+                    form.forEach((key, value) {
+                      if (key == 'id' || key == 'building') return; // Skip 'id' and 'building'
+
+                      if (value is Map) {
+                        // Handle nested Maps (like formData)
+                        print('  $key:');
+                        value.forEach((nestedKey, nestedValue) {
+                          print('    $nestedKey: $nestedValue');
+                        });
+                      } else {
+                        // Print other top-level key-value pairs
+                        print('  $key: $value');
+                      }
+                    });
+
+                    print('-----------------------------'); // Separator between forms
+                  }
+                }).catchError((error) {
+                  print('Error getting forms: $error');
+                });
+              },
+              child: const Text('Query Forms by Building Document ID'),
+            ),
           ],
         ),
       ),
