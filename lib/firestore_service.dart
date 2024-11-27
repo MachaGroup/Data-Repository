@@ -408,13 +408,13 @@ Future<DocumentSnapshot<Map<String, dynamic>>?> getContactUsbyEmail(String email
   }
 }
 
-Future<List<Map<String, dynamic>>> getAllFormsInAccessControlKeypads() async {
+Future<List<Map<String, dynamic>>> getAllFormsInSpecificSubcollection() async {
   try {
     // Query for all documents in the subcollection
     QuerySnapshot querySnapshot = await _firestore
         .collection('forms')
         .doc('Physical Security') // Target the Physical Security subcollection
-        .collection('Access Control Systems') // Target the Access Control Keypads subcollection
+        .collection('Security Gates') // Target the Access Control Keypads subcollection
         .get();
 
     // Process the query results
@@ -442,7 +442,7 @@ Future<List<Map<String, dynamic>>> getFormsByBuildingId(String buildingId) async
     QuerySnapshot querySnapshot = await _firestore
         .collection('forms')
         .doc('Physical Security') // Target the Physical Security subcollection
-        .collection('Stationed Guards') // Target the Access Control Systems subcollection
+        .collection('Security Gates') // Target the Access Control Systems subcollection
         .where('building', isEqualTo: FirebaseFirestore.instance.doc('Buildings/$buildingId')) // Filter by building reference ID
         .get();
 
