@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/material.dart';
+
+// Any and all of these should be able to be changed to different collections as you see fit. But for the most part should remain as they are.
 
 class FirestoreService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -87,16 +88,6 @@ class FirestoreService {
         rethrow;
       }
     }
-
-  // Code to create subcollection within projects collection called users
-  Future<void> createUsers(String projectId, Map<String, dynamic> userData) async {
-      try {
-        await _firestore.collection('projects').doc(projectId).collection('users').add(userData);
-      } catch (e) {
-        print('Error creating user: $e');
-        rethrow;
-      }
-    }
   
   // Code to create subcolection within tasks collection called Comments
   Future<void> createComments(String taskId, Map<String, dynamic> taskData) async {
@@ -118,24 +109,7 @@ class FirestoreService {
     }
   }
 
-  Future<void> createProjects(String projectsId, Map<String, dynamic> projectsData) async {
-    try {
-      await _firestore.collection('users').doc(projectsId).collection('Projects').add(projectsData);
-    } catch (e) {
-      print('Error creating Projects: $e');
-      rethrow;
-    }
-  }
-
-  Future<void> createUserTasks(String usertasksId, Map<String, dynamic> projectData) async {
-    try {
-      await _firestore.collection('users').doc(usertasksId).collection('Tasks').add(projectData);
-    } catch (e) {
-      print('Error creating Tasks');
-      rethrow;
-    }
-  }
-
+  // Example of how to create a document reference in a collection
   Future<void> createUserTasksRef(String usertasksRefId, Map<String, dynamic> projectData) async {
     try {
       //Create a document reference to the subcollection
@@ -147,82 +121,47 @@ class FirestoreService {
     }
   }
 
-  Future<void> createUserWithProjectReference(
-  String userId, 
-  String projectId, 
-  Map<String, dynamic> userData, {
-    required TextEditingController firstNameController,
-    required TextEditingController lastNameController,
-    required TextEditingController emailController,
-  }
-  ) async {
-    try {
-      DocumentReference projectRef = _firestore.collection('projects').doc(projectId);
-      await _firestore.collection('users').doc(userId).set({
-        // Use the passed controllers to get values
-        'firstName': firstNameController.text,
-        'lastName': lastNameController.text,
-        'email': emailController.text,
-        // ... other user data
-        'projectId': projectRef,
-      });
-    } catch (e) {
-      print('Error creating user with project reference: $e');
-      rethrow;
-    }
-  }
-
-  Future<List<Map<String, dynamic>>> queryDocumentsWithReferences(
-      String collectionName, String referenceField, String referenceId) async {
-    try {
-      QuerySnapshot querySnapshot = await _firestore
-          .collection(collectionName)
-          .where(referenceField, isEqualTo: referenceId) // Query using the string ID
-          .get();
-
-      List<Map<String, dynamic>> results = [];
-      for (QueryDocumentSnapshot doc in querySnapshot.docs) {
-        results.add(doc.data() as Map<String, dynamic>);
-      }
-      return results;
-    } catch (e) {
-      print('Error querying documents with references: $e');
-      rethrow;
-    }
-  }
-
-  // Batch Write Example
+  // This is an example of a batch write, using the test collection
   Future<void> batchWriteExample() async {
     try {
       // Create a WriteBatch
       WriteBatch batch = _firestore.batch();
 
       // Add operations to the batch
-      // Example: Add two new projects
+      // Example: adding test contact Info to the contact-us collection
       batch.set(
-        _firestore.collection('users').doc(), // Generate a new document ID
-        {
-          'email': 'Brandon@example.com',
-          'firstName': 'Brandon',
-          'lastName': 'Mihalko',
+        _firestore.collection('contact-us').doc(), // Creates a document in the contact us page (you can also change which collection to write to)
+        { // All information below is the fields in the documnets, you can add as many fields as you want too.
+          'Email': 'Brandon@example.com',
+          'FirstName': 'Brandon',
+          'LastName': 'Mihalko',
+          'Subject':'Testing Batch Write',
+          'Message':'This is a message to try and test out batch writes to the contact-us page by Brandond Mihalko',
+          'Timestamp': Timestamp.now(),
         },
       );
 
       batch.set(
-        _firestore.collection('users').doc(), // Generate a new document ID
-        {
-          'email': 'favour@example.com',
-          'firstName': 'Favour',
-          'lastName': 'Agho',
+        _firestore.collection('contact-us').doc(), // Creates a document in the contact us page (you can also change which collection to write to)
+        { // All information below is the fields in the documnets, you can add as many fields as you want too.
+          'Email': 'Liz@example.com',
+          'FirstName': 'Liz',
+          'LastName': 'Hall',
+          'Subject':' Testing Batch Write',
+          'Message':'I am having fun trying out new things and learning more about this app. I have had fun creating designing the backend',
+          'Timestamp': Timestamp.now(),
         },
       );
 
       batch.set(
-        _firestore.collection('users').doc(), // Generate a new document ID
-        {
-          'email': 'favour@example.com',
-          'firstName': 'Favour',
-          'lastName': 'Agho',
+        _firestore.collection('contact-us').doc(), // Creates a document in the contact us page (you can also change which collection to write to)
+        { // All information below is the fields in the documnets, you can add as many fields as you want too.
+          'Email': 'favour@example.com',
+          'FirstName': 'Favour',
+          'LastName': 'Agho',
+          'Subject':'Testing Batch Write',
+          'Message':'This is a test to again, see if batch writing works tot he contact-us page',
+          'Timestamp': Timestamp.now(),
         },
       );
 
@@ -293,9 +232,6 @@ class FirestoreService {
     }
   }
 
-  getBuildingsStream(String buildingDocId) {}
-
-
 Future<DocumentSnapshot<Map<String, dynamic>>> getBuidingsStream(String buildingsId) async {
     try {
       return await _firestore.collection('Buildings').doc(buildingsId).get();
@@ -313,7 +249,7 @@ Future<DocumentSnapshot<Map<String, dynamic>>> getBuidingsStream(String building
       print('Buildings Data:'); // Print a header for clarity
       for (QueryDocumentSnapshot doc in querySnapshot.docs) {
         print('--------------------'); // Seperator Between documents
-        print('Document ID: ${doc.id}');
+        print('Document ID: ${doc.id}'); // This displays the randomly generated document ID that conatins this information
         print('Company Name: ${doc.get('companyName') ?? 'N/A'}');
         print('Building Name: ${doc.get('buildingName') ?? 'N/A'}');
         print('Building Address: ${doc.get('buildingAddress') ?? 'N/A'}');
@@ -408,13 +344,13 @@ Future<DocumentSnapshot<Map<String, dynamic>>?> getContactUsbyEmail(String email
   }
 }
 
-Future<List<Map<String, dynamic>>> getAllFormsInAccessControlKeypads() async {
+Future<List<Map<String, dynamic>>> getAllFormsInSpecificSubcollection() async {
   try {
     // Query for all documents in the subcollection
     QuerySnapshot querySnapshot = await _firestore
         .collection('forms')
         .doc('Physical Security') // Target the Physical Security subcollection
-        .collection('Access Control Systems') // Target the Access Control Keypads subcollection
+        .collection('Security Gates') // Target the Access Control Keypads subcollection
         .get();
 
     // Process the query results
