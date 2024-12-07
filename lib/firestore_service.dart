@@ -351,7 +351,7 @@ Future<DocumentSnapshot<Map<String, dynamic>>?> getBuildingByBuildingId(String b
 
   Future<void> findUserByEmail() async {
   // Define the email address to search for
-  String email = 'machagroupwebapp@gmail.com';
+  String email = 'brandonmihalko@gmail.com';
 
   // Perform a Firestore query to find the user
   QuerySnapshot querySnapshot = await FirebaseFirestore.instance
@@ -441,8 +441,8 @@ Future<List<Map<String, dynamic>>> getFormsByBuildingId(String buildingId) async
     // Query for all documents with the given building ID
     QuerySnapshot querySnapshot = await _firestore
         .collection('forms')
-        .doc('Physical Security') // Target the Physical Security subcollection
-        .collection('Stationed Guards') // Target the Access Control Systems subcollection
+        .doc('Physical Security') // Target the Physical Security subcollection (Can be switched to any subcollection directly under the forms collection)
+        .collection('Security Gates') // Target the Access Control Systems subcollection (Can be any subcollection under the 7 subcollection sections)
         .where('building', isEqualTo: FirebaseFirestore.instance.doc('Buildings/$buildingId')) // Filter by building reference ID
         .get();
 
