@@ -1,21 +1,21 @@
-const { db } = require("./firebaseConfig.js");
-const { collection, getDocs, updateDoc, doc, deleteField } = require("firebase/firestore");
+import { db } from "./firebaseConfig.js";
+import { collection, getDocs, updateDoc, doc, deleteField } from "firebase/firestore";
 
 const renameBuildingID = async () => {
   try {
-    const collectionRef = collection(db, "Building_ID"); // Collection name
+    const collectionRef = collection(db, "building_ID"); // Reference to the collection
     const snapshot = await getDocs(collectionRef); // Fetch all documents
 
     for (const document of snapshot.docs) {
       const data = document.data();
 
-      if (data.Building_ID) { // If the document has "Building_ID"
-        await updateDoc(doc(db, "Building_ID", document.id), {
-          Assessment_ID: data.Building_ID, // Copy value
-          Building_ID: deleteField() // Remove the old field
+      if (data.building_ID) {
+        await updateDoc(doc(db, "building_ID", document.id), {
+          Assessment_ID: data.building_ID, // Copy value
+          Building_ID: deleteField() // Remove old field
         });
 
-        console.log(`✅ Updated ${document.id}: Building_ID → Assessment_ID`);
+        console.log(`✅ Updated ${document.id}: building_ID → Assessment_ID`);
       }
     }
 
@@ -25,5 +25,4 @@ const renameBuildingID = async () => {
   }
 };
 
-// Run the script
 renameBuildingID();

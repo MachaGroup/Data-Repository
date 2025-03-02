@@ -3,3 +3,13 @@
     "firebase": "^10.14.0"
   }
 }
+
+{
+  "name": "data-repository",
+  "version": "1.0.0",
+  "type": "module",
+  "dependencies": {
+    "firebase": "^10.4.0"
+  }
+}
+
