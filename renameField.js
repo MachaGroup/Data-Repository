@@ -1,21 +1,30 @@
 import { db } from "./firebaseConfig.js";
 import { collection, getDocs, updateDoc, doc, deleteField } from "firebase/firestore";
 
-const renameBuildingID = async () => {
+const renameBuildingId = async () => {
   try {
-    const collectionRef = collection(db, "building_ID"); // Reference to the collection
+    const collectionRef = collection(db, "Buildings"); // ✅ Correct collection name
     const snapshot = await getDocs(collectionRef); // Fetch all documents
+
+    if (snapshot.empty) {
+      console.log("❌ No documents found in the 'Buildings' collection.");
+      return;
+    }
 
     for (const document of snapshot.docs) {
       const data = document.data();
+      console.log(`📌 Checking Document ID: ${document.id}`, data); // Log document data
 
-      if (data.building_ID) {
-        await updateDoc(doc(db, "building_ID", document.id), {
-          Assessment_ID: data.building_ID, // Copy value
-          Building_ID: deleteField() // Remove old field
+      if (data.buildingId) { // ✅ Correct field name
+        console.log(`✅ Updating document ${document.id}...`);
+        await updateDoc(doc(db, "Buildings", document.id), {
+          assessmentId: data.buildingId, // Copy value
+          buildingId: deleteField() // Remove old field
         });
 
-        console.log(`✅ Updated ${document.id}: building_ID → Assessment_ID`);
+        console.log(`✔️ Successfully updated ${document.id}`);
+      } else {
+        console.log(`⚠️ Skipping ${document.id} - No 'buildingId' field found.`);
       }
     }
 
@@ -25,4 +34,5 @@ const renameBuildingID = async () => {
   }
 };
 
-renameBuildingID();
+// Run the script
+renameBuildingId();
